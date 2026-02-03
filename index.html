@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Flappy Bird Fullscreen</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flappy Bird Custom</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<canvas id="game"></canvas>
+<div id="game-container">
+  <canvas id="game"></canvas>
 
-<div id="startText">Tap to Start</div>
-
-<div id="gameOverUI" class="hidden">
-  <h2>Game Over</h2>
-  <p>Score: <span id="finalScore">0</span></p>
-  <button id="restartBtn">Restart</button>
+  <div id="ui">
+    <h1 id="title">Tap to Start</h1>
+    <p id="score">Score: 0</p>
+    <button id="restart">Restart</button>
+  </div>
 </div>
 
 <script src="script.js"></script>
