@@ -4,70 +4,36 @@
   box-sizing: border-box;
 }
 
-/* FULL SCREEN */
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* ONLY GAME – NO BACKGROUND */
 body {
-  background: none;
-}
-
-/* Canvas fullscreen */
-canvas {
-  display: block;
-  width: 100vw;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
 }
 
-/* Start Text */
-#startText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 28px;
-  color: yellow;
-  font-weight: bold;
-  text-shadow: 0 0 10px black;
-  animation: pulse 1.4s infinite;
+#game-container {
+  position: relative;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.4; }
-  50% { opacity: 1; }
-  100% { opacity: 0.4; }
+canvas {
+  display: block;
+  background: url("https://i.postimg.cc/qMyDQ7XD/09d433e3-85c1-4190-b276-2ad504a68e0c.jpg")
+    no-repeat center/cover;
 }
 
-/* Game Over UI */
-#gameOverUI {
+#ui {
   position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  top: 20%;
+  width: 100%;
+  text-align: center;
   color: white;
+  font-family: Arial, sans-serif;
 }
 
-#gameOverUI h2 {
-  font-size: 36px;
-  margin-bottom: 10px;
-}
-
-#gameOverUI button {
-  margin-top: 15px;
-  padding: 10px 25px;
-  font-size: 18px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.hidden {
+#restart {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
   display: none;
 }
