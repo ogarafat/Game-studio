@@ -1,36 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Custom Flappy Bird</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Flappy Bird Fullscreen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Home Menu -->
-<div id="homeMenu" class="menu">
-  <h1>Flappy Bird</h1>
-  <button id="startGameBtn">Start Game</button>
-</div>
+<canvas id="game"></canvas>
 
-<!-- Game Display -->
-<div class="game-wrapper hidden" id="gameWrapper">
-  <canvas id="game" width="360" height="640"></canvas>
-  
-  <!-- Scoreboard -->
-  <div class="scoreboard left" id="scoreboardLeft">Score: <span id="scoreLeft">0</span></div>
-  <div class="scoreboard right" id="scoreboardRight">Score: <span id="scoreRight">0</span></div>
+<div id="startText">Tap to Start</div>
 
-  <!-- Start text inside game -->
-  <div id="startText" class="start-text">Tap to Start</div>
-
-  <!-- Retry Button -->
-  <div id="retryBtnContainer" class="retry-btn-container hidden">
-    <button id="retryBtn">Restart</button>
-  </div>
+<div id="gameOverUI" class="hidden">
+  <h2>Game Over</h2>
+  <p>Score: <span id="finalScore">0</span></p>
+  <button id="restartBtn">Restart</button>
 </div>
 
 <script src="script.js"></script>
 </body>
-    </html>
+</html>
