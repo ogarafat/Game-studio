@@ -1,93 +1,164 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: none;
-}
+const startText = document.getElementById("startText");
+const gameOverUI = document.getElementById("gameOverUI");
+const restartBtn = document.getElementById("restartBtn");
+const finalScoreEl = document.getElementById("finalScore");
 
-/* Home Menu */
-.menu {
-  text-align: center;
+/* FULLSCREEN CANVAS */
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-.menu h1 {
-  font-size: 36px;
-  color: #ffea00;
-  text-shadow: 1px 1px 5px #000;
-  margin-bottom: 20px;
-}
-.menu button {
-  padding: 12px 25px;
-  font-size: 20px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg,#ff6ec7,#ffd700,#00ffea);
-  color: #000;
-  cursor: pointer;
-  font-weight: bold;
-}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
-/* Game Wrapper */
-.game-wrapper {
-  position: relative;
-  border: 6px solid #ffd700;
-}
+/* Images */
+const bgImg = new Image();
+bgImg.src = "https://i.postimg.cc/qMyDQ7XD/09d433e3-85c1-4190-b276-2ad504a68e0c.jpg";
 
-/* Canvas */
-canvas { display: block; }
+const birdImg = new Image();
+birdImg.src = "https://i.postimg.cc/rsJBnF59/20260203-223756.png";
 
-/* Scoreboards */
-.scoreboard {
-  position: absolute;
-  top: 10px;
-  padding: 5px 10px;
-  font-size: 18px;
-  color: #fff;
-  background: rgba(0,0,0,0.5);
-  border-radius: 6px;
-  text-shadow: 1px 1px 2px #000;
-}
-.scoreboard.left { left: 10px; }
-.scoreboard.right { right: 10px; }
+const pipeUpImg = new Image();
+pipeUpImg.src = "https://i.postimg.cc/LX8Vp9P6/20260203-222223.png";
 
-/* Start text inside game */
-.start-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  font-size: 28px;
-  font-weight: bold;
-  color: #ffea00;
-  text-shadow: 0 0 10px #ffea00;
-  animation: pulse 1.5s infinite;
-  pointer-events: none;
+const pipeDownImg = new Image();
+pipeDownImg.src = "https://i.postimg.cc/XJKmq710/20260203-223653.png";
+
+/* Game variables */
+let gravity = 0.35;
+let flapPower = -6;
+
+let pipeGap = 240;
+let pipeDistance = 350;
+let pipeSpeed = 2;
+
+let bird, pipes, score, started, gameOver;
+
+/* Reset */
+function resetGame() {
+  bird = {
+    x: canvas.width * 0.25,
+    y: canvas.height / 2,
+    w: 55,
+    h: 45,
+    v: 0
+  };
+
+  pipes = [];
+  score = 0;
+  started = false;
+  gameOver = false;
+
+  pipeGap = 240;
+  pipeDistance = 350;
+  pipeSpeed = 2;
+
+  startText.classList.remove("hidden");
+  gameOverUI.classList.add("hidden");
 }
 
-@keyframes pulse {
-  0% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-  100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+resetGame();
+
+/* Spawn pipe */
+function spawnPipe() {
+  const topHeight = Math.random() * (canvas.height * 0.4) + 80;
+  pipes.push({
+    x: canvas.width + pipeDistance,
+    top: topHeight,
+    passed: false
+  });
 }
 
-/* Retry button */
-.retry-btn-container {
-  position: absolute;
-  top: 55%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-.retry-btn-container button {
-  font-size: 18px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  background: linear-gradient(135deg, #ff6ec7, #ffd700, #00ffea);
-  border: none;
-  color: #000;
-  font-weight: bold;
+/* Update */
+function update() {
+  if (!started || gameOver) return;
+
+  bird.v += gravity;
+  bird.y += bird.v;
+
+  if (bird.y < 0 || bird.y + bird.h > canvas.height) endGame();
+
+  pipes.forEach(p => {
+    p.x -= pipeSpeed;
+
+    const hitTop =
+      bird.x < p.x + 70 &&
+      bird.x + bird.w > p.x &&
+      bird.y < p.top;
+
+    const hitBottom =
+      bird.x < p.x + 70 &&
+      bird.x + bird.w > p.x &&
+      bird.y + bird.h > p.top + pipeGap;
+
+    if (hitTop || hitBottom) endGame();
+
+    if (!p.passed && p.x + 70 < bird.x) {
+      p.passed = true;
+      score++;
+
+      if (pipeGap > 140) pipeGap -= 5;
+      pipeSpeed += 0.05;
+    }
+  });
+
+  pipes = pipes.filter(p => p.x > -100);
 }
 
-.hidden { display: none; }
+/* Draw */
+function draw() {
+  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+
+  pipes.forEach(p => {
+    ctx.drawImage(pipeUpImg, p.x, 0, 70, p.top);
+    ctx.drawImage(
+      pipeDownImg,
+      p.x,
+      p.top + pipeGap,
+      70,
+      canvas.height - p.top - pipeGap
+    );
+  });
+
+  ctx.drawImage(birdImg, bird.x, bird.y, bird.w, bird.h);
+}
+
+/* Loop */
+let lastPipe = 0;
+function loop(time) {
+  if (started && !gameOver && time - lastPipe > 1500) {
+    spawnPipe();
+    lastPipe = time;
+  }
+
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* Controls */
+function flap() {
+  if (gameOver) return;
+  started = true;
+  startText.classList.add("hidden");
+  bird.v = flapPower;
+}
+
+canvas.addEventListener("touchstart", flap);
+canvas.addEventListener("mousedown", flap);
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") flap();
+});
+
+/* Game Over */
+function endGame() {
+  gameOver = true;
+  finalScoreEl.textContent = score;
+  gameOverUI.classList.remove("hidden");
+}
+
+restartBtn.onclick = resetGame;
