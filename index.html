@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Custom Flappy Bird</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Home Menu -->
+<div id="homeMenu" class="menu">
+  <h1>Flappy Bird</h1>
+  <button id="startGameBtn">Start Game</button>
+</div>
+
+<!-- Game Display -->
+<div class="game-wrapper hidden" id="gameWrapper">
+  <canvas id="game" width="360" height="640"></canvas>
+  
+  <!-- Scoreboard -->
+  <div class="scoreboard left" id="scoreboardLeft">Score: <span id="scoreLeft">0</span></div>
+  <div class="scoreboard right" id="scoreboardRight">Score: <span id="scoreRight">0</span></div>
+
+  <!-- Start text inside game -->
+  <div id="startText" class="start-text">Tap to Start</div>
+
+  <!-- Retry Button -->
+  <div id="retryBtnContainer" class="retry-btn-container hidden">
+    <button id="retryBtn">Restart</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+    </html>
