@@ -1,164 +1,131 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const startText = document.getElementById("startText");
-const gameOverUI = document.getElementById("gameOverUI");
-const restartBtn = document.getElementById("restartBtn");
-const finalScoreEl = document.getElementById("finalScore");
+canvas.width = 360;
+canvas.height = 640;
 
-/* FULLSCREEN CANVAS */
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
-
-/* Images */
-const bgImg = new Image();
-bgImg.src = "https://i.postimg.cc/qMyDQ7XD/09d433e3-85c1-4190-b276-2ad504a68e0c.jpg";
-
+// Images
 const birdImg = new Image();
 birdImg.src = "https://i.postimg.cc/rsJBnF59/20260203-223756.png";
 
-const pipeUpImg = new Image();
-pipeUpImg.src = "https://i.postimg.cc/LX8Vp9P6/20260203-222223.png";
+const pipeUp = new Image();
+pipeUp.src = "https://i.postimg.cc/LX8Vp9P6/20260203-222223.png";
 
-const pipeDownImg = new Image();
-pipeDownImg.src = "https://i.postimg.cc/XJKmq710/20260203-223653.png";
+const pipeDown = new Image();
+pipeDown.src = "https://i.postimg.cc/XJKmq710/20260203-223653.png";
 
-/* Game variables */
-let gravity = 0.35;
-let flapPower = -6;
+// UI
+const title = document.getElementById("title");
+const scoreText = document.getElementById("score");
+const restartBtn = document.getElementById("restart");
 
-let pipeGap = 240;
-let pipeDistance = 350;
-let pipeSpeed = 2;
+// Bird
+let bird = {
+  x: 80,
+  y: canvas.height / 2,
+  width: 48,
+  height: 36,
+  gravity: 0.4,
+  lift: -7,
+  velocity: 0
+};
 
-let bird, pipes, score, started, gameOver;
+// Pipes
+let pipes = [];
+let frame = 0;
+let score = 0;
+let gap = 180;
+let speed = 2;
 
-/* Reset */
-function resetGame() {
-  bird = {
-    x: canvas.width * 0.25,
-    y: canvas.height / 2,
-    w: 55,
-    h: 45,
-    v: 0
-  };
+// Game state
+let started = false;
+let gameOver = false;
 
-  pipes = [];
-  score = 0;
-  started = false;
-  gameOver = false;
+// Controls
+document.addEventListener("click", jump);
+document.addEventListener("touchstart", jump);
 
-  pipeGap = 240;
-  pipeDistance = 350;
-  pipeSpeed = 2;
-
-  startText.classList.remove("hidden");
-  gameOverUI.classList.add("hidden");
+function jump() {
+  if (!started) {
+    started = true;
+    title.style.display = "none";
+    restartBtn.style.display = "none";
+    loop();
+  }
+  if (!gameOver) {
+    bird.velocity = bird.lift;
+  }
 }
 
-resetGame();
+restartBtn.onclick = () => location.reload();
 
-/* Spawn pipe */
-function spawnPipe() {
-  const topHeight = Math.random() * (canvas.height * 0.4) + 80;
+function addPipe() {
+  let topHeight = Math.random() * 200 + 50;
   pipes.push({
-    x: canvas.width + pipeDistance,
+    x: canvas.width,
     top: topHeight,
-    passed: false
+    bottom: canvas.height - topHeight - gap
   });
 }
 
-/* Update */
 function update() {
-  if (!started || gameOver) return;
+  frame++;
 
-  bird.v += gravity;
-  bird.y += bird.v;
+  bird.velocity += bird.gravity;
+  bird.y += bird.velocity;
 
-  if (bird.y < 0 || bird.y + bird.h > canvas.height) endGame();
+  if (frame % 120 === 0) addPipe();
 
   pipes.forEach(p => {
-    p.x -= pipeSpeed;
+    p.x -= speed;
 
-    const hitTop =
-      bird.x < p.x + 70 &&
-      bird.x + bird.w > p.x &&
-      bird.y < p.top;
-
-    const hitBottom =
-      bird.x < p.x + 70 &&
-      bird.x + bird.w > p.x &&
-      bird.y + bird.h > p.top + pipeGap;
-
-    if (hitTop || hitBottom) endGame();
-
-    if (!p.passed && p.x + 70 < bird.x) {
-      p.passed = true;
+    if (p.x + 80 < 0) {
+      pipes.shift();
       score++;
+      scoreText.innerText = "Score: " + score;
 
-      if (pipeGap > 140) pipeGap -= 5;
-      pipeSpeed += 0.05;
+      if (score % 5 === 0 && gap > 120) {
+        gap -= 10;
+        speed += 0.3;
+      }
+    }
+
+    if (
+      bird.x < p.x + 80 &&
+      bird.x + bird.width > p.x &&
+      (bird.y < p.top || bird.y + bird.height > canvas.height - p.bottom)
+    ) {
+      endGame();
     }
   });
 
-  pipes = pipes.filter(p => p.x > -100);
+  if (bird.y + bird.height > canvas.height || bird.y < 0) {
+    endGame();
+  }
 }
 
-/* Draw */
 function draw() {
-  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
 
   pipes.forEach(p => {
-    ctx.drawImage(pipeUpImg, p.x, 0, 70, p.top);
-    ctx.drawImage(
-      pipeDownImg,
-      p.x,
-      p.top + pipeGap,
-      70,
-      canvas.height - p.top - pipeGap
-    );
+    ctx.drawImage(pipeUp, p.x, p.top - 320, 80, 320);
+    ctx.drawImage(pipeDown, p.x, canvas.height - p.bottom, 80, 320);
   });
-
-  ctx.drawImage(birdImg, bird.x, bird.y, bird.w, bird.h);
 }
 
-/* Loop */
-let lastPipe = 0;
-function loop(time) {
-  if (started && !gameOver && time - lastPipe > 1500) {
-    spawnPipe();
-    lastPipe = time;
-  }
-
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
-
-/* Controls */
-function flap() {
-  if (gameOver) return;
-  started = true;
-  startText.classList.add("hidden");
-  bird.v = flapPower;
-}
-
-canvas.addEventListener("touchstart", flap);
-canvas.addEventListener("mousedown", flap);
-document.addEventListener("keydown", e => {
-  if (e.code === "Space") flap();
-});
-
-/* Game Over */
 function endGame() {
   gameOver = true;
-  finalScoreEl.textContent = score;
-  gameOverUI.classList.remove("hidden");
+  title.innerText = "Game Over";
+  title.style.display = "block";
+  restartBtn.style.display = "inline-block";
 }
 
-restartBtn.onclick = resetGame;
+function loop() {
+  if (!gameOver) {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+}
